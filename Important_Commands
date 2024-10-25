@@ -24,3 +24,20 @@ zabbix-proxy   1/1     1            1           16h
 Last : 1967  kubectl apply -f zabbix-proxy-deployment.yaml
 
 kubectl get configmap zabbix-proxy-config -n monitoring -o yaml
+
+====================================================
+
+
+root@rke2dscm1:~# kubectl get nodes
+NAME        STATUS                     ROLES                       AGE    VERSION
+rke2dscm1   Ready                      control-plane,etcd,master   158d   v1.28.9+rke2r1
+rke2dscm2   Ready                      control-plane,etcd,master   158d   v1.28.9+rke2r1
+rke2dscm3   Ready                      control-plane,etcd,master   158d   v1.28.9+rke2r1
+rke2work1   Ready,SchedulingDisabled   worker                      4d     v1.28.9+rke2r1
+rke2work2   Ready                      worker                      158d   v1.28.9+rke2r1
+root@rke2dscm1:~# kubectl get pod -n monitoring -o wide
+NAME                                         READY   STATUS    RESTARTS         AGE   IP              NODE        NOMINATED NODE   READINESS GATES
+zabbix-agent-ddql5                           1/1     Running   0                19h   10.10.10.5      rke2work1   <none>           <none>
+zabbix-agent-m96xd                           1/1     Running   0                13d   10.10.10.7      rke2work2   <none>           <none>
+zabbix-kube-state-metrics-64ddc65c45-g29d8   1/1     Running   1259 (10d ago)   13d   10.42.194.133   rke2work2   <none>           <none>
+zabbix-proxy-78487cbbc4-7lbfl                1/1     Running   0                28m   10.42.194.168   rke2work2   <none>           <none>
