@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: zabbix-proxy
+ namespace: monitoring
+spec:
+ replicas: 1
+ selector:
+   matchLabels:
+     name: zabbix-proxy
+ template:
+   metadata:
+     labels:
+       name: zabbix-proxy
+   spec:
+     serviceAccountName: zabbix-service-account
+     securityContext:
+       fsGroup: 1997
+       runAsUser: 1997
+       runAsGroup: 1997
+     initContainers:
+     - name: init-dirs
+       image: busybox:latest
+       command:
+       - sh
+       - -c
+       - |
+         mkdir -p /var/log/zabbix /var/run/zabbix /var/lib/zabbix/db_data /etc/zabbix
+         chown -R 1997:1997 /var/log/zabbix /var/run/zabbix /var/lib/zabbix /etc/zabbix /var/lib/zabbix/db_data
+         chmod 755 /var/log/zabbix /var/run/zabbix /var/lib/zabbix /etc/zabbix /var/lib/zabbix/db_data
+         cp /config/zabbix_proxy.conf /etc/zabbix/
+         chmod 644 /etc/zabbix/zabbix_proxy.conf
+         touch /var/log/zabbix/zabbix_proxy.log
+         chown 1997:1997 /var/log/zabbix/zabbix_proxy.log
+         chmod 644 /var/log/zabbix/zabbix_proxy.log
+       securityContext:
+         runAsUser: 0
+       volumeMounts:
+       - name: zabbix-data
+         mountPath: /var/lib/zabbix
+       - name: zabbix-run
+         mountPath: /var/run/zabbix
+       - name: zabbix-log
+         mountPath: /var/log/zabbix
+       - name: zabbix-etc
+         mountPath: /etc/zabbix
+       - name: config
+         mountPath: /config
+     containers:
+     - name: zabbix-proxy
+       image: zabbix/zabbix-proxy-sqlite3:alpine-6.0.28
+       securityContext:
+         runAsUser: 1997
+         runAsGroup: 1997
+       env:
+       - name: ZBX_SERVER_HOST
+         value: "198.19.24.23"
+       - name: ZBX_HOSTNAME
+         value: "kube_pxy_206.1.12.144"
+       - name: ZBX_PROXYMODE
+         value: "0"
+       - name: ZBX_DEBUGLEVEL
+         value: "4"
+       - name: KUBERNETES_SERVICE_HOST
+         value: "10.10.10.9"
+       - name: KUBERNETES_SERVICE_PORT
+         value: "6443"
+       volumeMounts:
+       - name: zabbix-data
+         mountPath: /var/lib/zabbix
+       - name: zabbix-run
+         mountPath: /var/run/zabbix
+       - name: zabbix-log
+         mountPath: /var/log/zabbix
+       - name: zabbix-etc
+         mountPath: /etc/zabbix
+       - name: k8s-token
+         mountPath: "/var/run/secrets/kubernetes.io/serviceaccount"
+         readOnly: true
+       ports:
+       - containerPort: 10051
+         protocol: TCP
+       resources:
+         requests:
+           memory: "256Mi"
+           cpu: "200m"
+         limits:
+           memory: "512Mi"
+           cpu: "500m"
+       livenessProbe:
+         tcpSocket:
+           port: 10051
+         initialDelaySeconds: 30
+         periodSeconds: 10
+         timeoutSeconds: 5
+       readinessProbe:
+         tcpSocket:
+           port: 10051
+         initialDelaySeconds: 5
+         periodSeconds: 10
+         timeoutSeconds: 5
+     volumes:
+     - name: zabbix-data
+       emptyDir: {}
+     - name: zabbix-run
+       emptyDir: {}
+     - name: zabbix-log
+       emptyDir: {}
+     - name: zabbix-etc
+       emptyDir: {}
+     - name: config
+       configMap:
+         name: zabbix-proxy-config
+     - name: k8s-token
+       secret:
+         secretName: zabbix-token
