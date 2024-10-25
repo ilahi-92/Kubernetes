@@ -1,0 +1,24 @@
+root@rke2dscm1:~# kubectl get configmap zabbix-proxy-config -n monitoring -o yaml
+apiVersion: v1
+data:
+  zabbix_proxy.conf: |
+    Server=198.19.24.23
+    Hostname=kube_pxy_206.1.12.144
+    DBName=/var/lib/zabbix/db_data/zabbix_proxy.db
+    LogFile=/var/log/zabbix/zabbix_proxy.log
+    LogType=file
+    LogFileSize=0
+    PidFile=/var/run/zabbix/zabbix_proxy.pid
+    SocketDir=/var/run/zabbix
+    Timeout=4
+    User=zabbix
+kind: ConfigMap
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"zabbix_proxy.conf":"Server=198.19.24.23\nHostname=kube_pxy_206.1.12.144\nDBName=/var/lib/zabbix/db_data/zabbix_proxy.db\nLogFile=/var/log/zabbix/zabbix_proxy.log\nLogType=file\nLogFileSize=0\nPidFile=/var/run/zabbix/zabbix_proxy.pid\nSocketDir=/var/run/zabbix\nTimeout=4\nUser=zabbix\n"},"kind":"ConfigMap","metadata":{"annotations":{},"name":"zabbix-proxy-config","namespace":"monitoring"}}
+  creationTimestamp: "2024-10-15T12:13:43Z"
+  name: zabbix-proxy-config
+  namespace: monitoring
+  resourceVersion: "73486634"
+  uid: 1a905060-4c73-46c8-b844-d295971e5dd7
