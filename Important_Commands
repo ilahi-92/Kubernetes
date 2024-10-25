@@ -1,0 +1,26 @@
+ 1665  kubectl get nodes -o wide
+ 1667  export KUBECONFIG=/etc/rancher/rke2/rke2.yaml or !exp
+
+
+root@rke2dscm1:~# kubectl get deployment zabbix-proxy -n monitoring
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+zabbix-proxy   1/1     1            1           16h
+
+to stop and start proxy : 
+
+root@rke2dscm1:~# kubectl scale deployment zabbix-proxy -n monitoring --replicas=0
+deployment.apps/zabbix-proxy scaled
+root@rke2dscm1:~# kubectl scale deployment zabbix-proxy -n monitoring --replicas=1
+deployment.apps/zabbix-proxy scaled
+
+
+root@rke2dscm1:~# kubectl get deployment zabbix-proxy -n monitoring
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+zabbix-proxy   1/1     1            1           16h
+
+ 1121  kubectl apply -f zabbix-token-secret.yaml
+ 1959  kubectl apply -f zabbix-rbac.yaml
+ 1966  kubectl apply -f zabbix-service-account.yaml
+Last : 1967  kubectl apply -f zabbix-proxy-deployment.yaml
+
+kubectl get configmap zabbix-proxy-config -n monitoring -o yaml
