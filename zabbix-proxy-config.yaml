@@ -1,0 +1,18 @@
+root@rke2dscm1:~# cat zabbix-proxy-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zabbix-proxy-config
+  namespace: monitoring
+data:
+  zabbix_proxy.conf: |
+    Server=198.19.24.23
+    Hostname=kube_pxy_206.1.12.144
+    DBName=/var/lib/zabbix/db_data/zabbix_proxy.db
+    LogFile=/var/log/zabbix/zabbix_proxy.log
+    LogType=file
+    LogFileSize=0
+    PidFile=/var/run/zabbix/zabbix_proxy.pid
+    SocketDir=/var/run/zabbix
+    Timeout=4
+    User=zabbix
